@@ -4,7 +4,7 @@
 
 ## 📌 프로젝트 개요
 ### 기획 의도
-- 최근 남성들의 화장품 및 피부 미용에 대한 관심이 증가함에 따라 맞춤형 화장품 및 관리 제품 팔요성 증대 
+- 최근 남성들의 화장품 및 피부 미용에 대한 관심이 증가함에 따라 맞춤형 화장품 및 관리 제품 필요성 증대 
 - 정확한 피부 분석 및 의사와의 상담 필요
 
 ### 차별화 포인트
@@ -37,9 +37,8 @@
 - **Frontend**: 
 - **Backend**: Python, Fast API, 
 - **Database**: PostgreSQL, pinecone
-- **보안 및 암호화**: 
 - **Deployment**: 
-- **AI**: kosebert, 
+- **AI**: Python, TensorFlow, YOLOv8, EfficientNet, OpenCV
 
 ---
 ## 🗄️ 데이터베이스 구조
@@ -57,11 +56,12 @@
 ## 🧑‍💻 팀원 및 역할
 
 | 이름 (포지션) | 담당 업무 |
-|:-------------|:-----|
-| 이동우 (AI) |  |
+|:-------------|:---------|
+| 이동우 (AI) | YOLOv8n 기반 피부 질환/상태 탐지 모델 파인튜닝<br>EfficientNetB0 기반 피부 타입 분류 모델 파인튜닝<br>AI 데이터 전처리 및 학습 파이프라인 설계 |
 | 이승현 (Front-end) |  |
-| 이충민 (Full-Stack) |  |
+| 이충민 (Full-Stack) | |
 | 진완규 (Back-end) | 화장품 추천 알고리즘 및 서버 구축 |
+
 
 ---
 ## 🛠 시스템 구조
@@ -88,156 +88,157 @@
 
 <img width="1075" height="475" alt="Image" src="https://github.com/user-attachments/assets/92a7d649-e81f-497b-848c-65ec7ec715b1" />
 
+## 🧠 AI 분석 파이프라인
 
-🤖 AI 피부 분석 모델
+모바일 환경에서 실시간 처리가 가능하도록  
+객체 탐지(Object Detection)와 분류(Classification)를 분리한 **2단계 파이프라인**으로 구성했습니다.
 
-본 프로젝트의 AI 파트는 모바일 환경에서도 실시간 사용이 가능한 경량 모델을 목표로
-객체 탐지(Object Detection) + 분류(Classification)를 분리한 2단계 구조로 설계
+1. **입력 이미지 수집**
+   - 사용자가 촬영한 얼굴 이미지 입력
 
-🧠 AI 전체 흐름
-사용자 얼굴 이미지
-        ↓
-YOLOv8n (얼굴 탐지)
-        ↓
-얼굴 영역 크롭
-        ↓
-YOLOv8n (피부 질환 / 상태 탐지)
-        ↓
-EfficientNetB0 (피부 타입 분류)
-        ↓
-분석 결과 저장 및 추천 시스템 연동
+2. **얼굴 영역 탐지 (YOLOv8n)**
+   - 얼굴 영역 자동 검출
+   - 불필요한 배경 제거
 
-🔍 피부 질환 · 상태 탐지 (YOLOv8n)
-✔️ 개요
+3. **얼굴 영역 크롭**
+   - 탐지된 얼굴 영역 기준으로 이미지 크롭
+   - 이후 분석 모델 입력 데이터로 사용
 
-얼굴 내부의 피부 질환 및 상태 위치를 바운딩 박스로 탐지
+4. **피부 질환 / 피부 상태 탐지 (YOLOv8n)**
+   - 여드름, 염증성 질환 등 피부 질환 탐지
+   - 주름, 건조, 처짐 등 피부 상태 탐지
+   - 바운딩 박스 + confidence score 출력
 
-모바일 실시간 적용을 고려해 YOLOv8 시리즈 중 가장 경량인 YOLOv8n 사용
+5. **피부 타입 분류 (EfficientNetB0)**
+   - 크롭된 얼굴 이미지 기반 분류
+   - dry / normal / oily 타입 예측
 
-✔️ 활용 방식
+6. **분석 결과 저장 및 서비스 연동**
+   - 분석 결과 DB 저장
+   - 화장품 추천 및 진료 시스템과 연동
 
-얼굴 탐지
 
-yolov8n-face-lindevs.pt 모델로 얼굴 영역 자동 검출
 
-피부 상태 탐지
 
-크롭된 얼굴 이미지에 대해 YOLOv8n 파인튜닝 모델 적용
+## 🩺 피부 질환 탐지 모델 (YOLOv8n)
 
-여드름, 주름, 건조, 처짐 등 클래스별 탐지
+얼굴 내부의 **피부 질환 위치를 바운딩 박스로 탐지**하는 모델로,  
+모바일 실시간 적용을 고려해 **YOLOv8 시리즈 중 가장 경량인 YOLOv8n**을 사용
 
-<img src="https://github.com/user-attachments/assets/ed79a8b2-a3b6-4d6e-95d1-a51fd3951a52" width="800"/>
-🧪 데이터 전처리
+---
 
-JSON 어노테이션 → YOLO 포맷 변환
+### ① 피부 질환 탐지 모델 – 학습 과정
 
-다양한 이미지 크기에 대응하기 위한 좌표 정규화
+> **Training Loss 및 Precision / Recall / mAP 변화**
 
-시각적으로 유사한 클래스 통합
+<img src="https://github.com/user-attachments/assets/acbe4778-28e9-49d0-83e9-7f1d88822dee" width="85%" />
 
-pigmentation, pore → lesion
+---
 
-지루·주사 등 염증성 질환 → inflammatory
+### ② 피부 질환 탐지 모델 – Validation 성능 지표
 
-Albumentations 기반 데이터 증강 적용
-(회전, 반전, 밝기·대비 조정, 블러 등)
+> **Validation 데이터 기준 Precision, Recall, mAP50, mAP50-95**
 
-클래스 불균형 완화를 위한 Stratified split
+<img src="https://github.com/user-attachments/assets/43f02cdb-5c08-4487-a724-3e87590daae0" width="85%" />
 
-⚙️ 학습 설정 (PPT 기준)
+---
 
-Input Size: 1024 × 1024
+### ③ 피부 질환 탐지 결과 (Validation 데이터)
 
-Epoch: 10
+> **여드름, 정상, 염증성 질환(inflammatory) 탐지 결과 예시**
 
-Warm-up: 3 epoch
+<img src="https://github.com/user-attachments/assets/eda3b83a-b2c0-4fd8-ac51-3b25b54c6afa" width="70%" />
 
-Learning Rate: 0.002 → Cosine Annealing
+---
 
-Momentum: 0.937
+### ④ 피부 질환 탐지 결과 (추가 Validation 예시)
 
-실시간 적용을 고려한 YOLOv8n fine-tuning
 
-📊 탐지 결과 예시
-<img src="https://github.com/user-attachments/assets/e8e4650c-4e33-4dfc-adeb-f6f9631b4090" width="800"/>
 
-얼굴 내 피부 상태 4종류 탐지
+<img src="https://github.com/user-attachments/assets/4d107171-4927-4bf2-a373-384d13279588" width="70%" />
 
-클래스 이름과 confidence score 시각화
+---
 
-염증성 질환은 inflammatory로 통합 예측
+### 사용한 전처리 및 학습 전략
+- JSON 어노테이션 → YOLO 포맷 변환
+- 다양한 이미지 크기에 대응하기 위한 좌표 정규화
+- 염증성 질환(지루·주사 등) → `inflammatory` 클래스로 통합
+- Epoch 60 / Early Stopping 10
+- Learning Rate 0.002 → Cosine Annealing
+- Warm-up 3 epoch
 
-🧴 피부 타입 분류 (EfficientNetB0)
-✔️ 개요
+---
 
-얼굴 전체 이미지를 기반으로 피부 타입 분류
+## ✨ 피부 상태 탐지 모델 (YOLOv8n)
 
-클래스: dry / normal / oily
+피부 질환과는 별도로, 얼굴 내 **피부 상태(lesion, wrinkle, dryness, chin sagging)**를  
+바운딩 박스로 탐지하는 모델입니다.
 
-YOLO로 얼굴을 자동 크롭한 후 분류 모델에 입력
+---
 
-<img src="https://github.com/user-attachments/assets/acd9b9cd-7378-4cd9-a6dd-64e4de58d762" width="800"/>
-🧪 데이터 전처리
+### ⑤ 피부 상태 탐지 모델 – 학습 과정
 
-YOLOv8n(face 모델)로 얼굴 영역 자동 추출
+> **Training Loss 및 Precision / Recall / mAP 변화**
 
-Albumentations 및 OpenCV 기반 증강 적용 → 데이터 수 확장
+<img src="https://github.com/user-attachments/assets/ebab128c-8f02-4fb9-9a8e-f1dc3ff06cc4" width="85%" />
 
-Resize: 224 × 224
+---
 
-Train / Valid / Test = 8 : 1 : 1
+### ⑥ 피부 상태 탐지 모델 – Validation 성능 지표
 
-⚙️ 학습 구조 및 전략
+> **Validation 데이터 기준 탐지 성능 지표**
 
-Backbone: EfficientNetB0
+<img src="https://github.com/user-attachments/assets/e0b97ed0-05c2-4289-b10f-23c6d7a4cb25" width="85%" />
 
-분류기 구조
+---
 
-GlobalAveragePooling
-→ Dropout(0.3)
-→ Dense (Softmax)
+### ⑦ 피부 상태 탐지 결과 (Validation 데이터)
 
+> **lesion / wrinkle / lip_dryness / chin_sagging 탐지 결과**
 
-MixUp · CutMix 적용
+<img src="https://github.com/user-attachments/assets/7a24a45f-e6e1-48e0-a3d2-df78345fbc3a" width="70%" />
 
-Focal Loss 적용
+---
 
-Cosine Annealing 스케줄
+### ⑧ 피부 상태 탐지 결과 (추가 Validation 예시)
 
-2단계 학습
 
-Phase 1: Backbone 고정
 
-Phase 2: 하위 레이어 Fine-tuning
+<img src="https://github.com/user-attachments/assets/799355ae-c2d1-425b-aa5c-9d3b34bb6e7e" width="70%" />
 
-📈 성능 평가 기준
+---
 
-Accuracy
+### 사용한 전처리 및 학습 전략
+- `pigmentation`, `pore` → `lesion` 통합
+- Albumentations 기반 데이터 증강
+- Stratified split으로 클래스 불균형 완화
+- Input 1024×1024 / Batch 64
+- Epoch 10 / Warm-up 3
+- LR 0.002 → Cosine Annealing / Momentum 0.937
 
-Recall
+---
 
-F1-score
+## 🧴 피부 타입 분류 모델 (EfficientNetB0)
 
-외부 이미지 및 다양한 환경에서도 작동 가능한 일반화 성능 중점 평가
+얼굴 전체 이미지를 기반으로 **피부 타입을 분류**하는 모델입니다.  
+YOLO를 통해 얼굴을 자동 크롭한 후 분류 모델에 입력합니다.
 
-🧑‍💻 AI 담당 역할 (이동우)
+---
 
-YOLOv8n 기반 피부 질환/상태 탐지 모델 파인튜닝
+### ⑨ 피부 타입 분류 결과 (Confusion Matrix)
 
-EfficientNetB0 기반 피부 타입 분류 모델 학습
+> **dry / normal / oily 피부 타입 분류 성능**
 
-JSON → YOLO 변환 및 데이터 전처리 파이프라인 구축
+<img src="https://github.com/user-attachments/assets/96eb4ec6-4f92-46f5-b617-aeba82a90fe9" width="65%" />
 
-클래스 통합 전략 수립을 통한 학습 안정성 개선
+---
 
-모바일 실시간 적용을 고려한 모델 구조 설계
+### 분류 모델 학습 전략
+- EfficientNetB0 기반 분류 모델
+- GlobalAveragePooling → Dropout(0.3) → Dense Softmax
+- MixUp · CutMix / Focal Loss 적용
+- Phase 1: Backbone 고정
+- Phase 2: 하위 레이어 Fine-tuning
 
-모델 추론 결과를 서버(FastAPI)와 연동 가능한 형태로 설계
+---
 
-🔧 향후 개선 방향
-
-mAP 기반 탐지 성능 정량 평가 고도화
-
-피부 상태 세부 클래스 확장
-
-조명·연령·촬영 환경에 대한 일반화 강화
