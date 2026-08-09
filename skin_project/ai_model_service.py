@@ -49,11 +49,11 @@ if TF_AVAILABLE and tf is not None:
         def from_config(cls, config):
             return cls(**config)
 
-    # Keras preprocess_input 함수 정의
+    # EfficientNet의 실제 preprocess_input은 identity 함수 (정규화가 모델 내부에 포함되어 있어
+    # 0~255 원본 값을 그대로 받아야 함 — tf.keras.applications.efficientnet.preprocess_input 참조)
     @tf.keras.utils.register_keras_serializable()
     def preprocess_input(x):
-        """기본 전처리 함수"""
-        return x / 255.0
+        return x
 
     # 추가 호환성 함수들
     @tf.keras.utils.register_keras_serializable()
@@ -148,6 +148,9 @@ class SkinAnalysisService:
             "normal": "정상",
             
             # 피부 상태
+            "lesion": "병변",
+            "chin_sagging": "처짐",
+            "lip_dryness": "입술건조",
             "wrinkle": "주름",
             "wrinkles": "주름",
             "fine_lines": "잔주름",
@@ -341,9 +344,10 @@ class SkinAnalysisService:
             if self.skin_type_model is None:
                 return {"type": "알 수 없음", "confidence": 0.0, "error": "모델이 로드되지 않았습니다"}
                 
-            # 배치 차원 추가
-            input_array = np.expand_dims(image_array, axis=0)
-            
+            # EfficientNet은 0~255 원본 스케일을 그대로 기대함 (모델 내부에서 정규화 처리)
+            # image_array는 0~1로 정규화되어 있으므로 되돌려서 전달
+            input_array = np.expand_dims(image_array * 255.0, axis=0)
+
             # 예측 수행
             predictions = self.skin_type_model.predict(input_array, verbose=0)
             
@@ -538,40 +542,56 @@ class SkinAnalysisService:
         """종합적인 피부 분석을 수행합니다."""
         try:
             logger.info("🔬 종합 피부 분석 시작...")
-            
+
             if not self.models_loaded:
                 logger.info("모델이 로드되지 않았습니다. 로딩을 시도합니다...")
                 self.load_models()
-                
+
             if not self.models_loaded:
                 return {
                     "success": False,
                     "error": "AI 모델을 로드할 수 없습니다"
                 }
-                
+
             # 이미지 전처리
             logger.info("이미지 전처리 중...")
             processed_image = self.preprocess_image(image_data)
-            
+
             # 세 가지 모델로 예측 수행
             logger.info("AI 모델 예측 수행 중...")
-            
+
             skin_type_result = self.predict_skin_type(processed_image)
             skin_disease_result = self.predict_skin_disease(processed_image)
             skin_state_result = self.predict_skin_state(processed_image)
-            
+
+            # 모순/저신뢰 감지
+            from uncertainty_detector import detect_uncertainty
+            uncertainty = detect_uncertainty(skin_type_result, skin_disease_result, skin_state_result)
+            if uncertainty["is_uncertain"]:
+                logger.info(f"⚠️ 불확실성 감지: {uncertainty['reason']} | flags={uncertainty['flags']}")
+
+            # RAG 근거 기반 설명 생성 (근거 없거나 불확실하면 전문의 상담 안내로 대체)
+            from grounded_explanation import generate_grounded_explanation
+            grounded_explanation = await generate_grounded_explanation(
+                skin_disease_result.get("disease", "알 수 없음"),
+                skin_state_result.get("state", "알 수 없음"),
+                uncertainty,
+            )
+
             # 추천사항 생성
             recommendations = self.generate_recommendations(
                 skin_type_result.get("type", "알 수 없음"),
-                skin_disease_result.get("disease", "알 수 없음"), 
+                skin_disease_result.get("disease", "알 수 없음"),
                 skin_state_result.get("state", "알 수 없음")
             )
-            
+
             result = {
                 "success": True,
                 "skin_type": skin_type_result,
                 "skin_disease": skin_disease_result,
                 "skin_state": skin_state_result,
+                "uncertainty": uncertainty,
+                "grounded_explanation": grounded_explanation,
                 "recommendations": recommendations,
                 "analysis_summary": {
                     "type": skin_type_result.get("type", "알 수 없음"),

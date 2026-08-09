@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 피부 분석</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f9fa; color: #212529; }
+
+    header {
+      background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+      padding: 28px 24px; text-align: center;
+    }
+    header h1 { font-size: 22px; color: #fff; font-weight: 700; letter-spacing: -0.3px; }
+    header p { color: rgba(255,255,255,0.9); margin-top: 6px; font-size: 13px; }
+
+    main { max-width: 680px; margin: 28px auto; padding: 0 16px 40px; }
+
+    /* 업로드 영역 */
+    #drop-zone {
+      border: 2px dashed #dee2e6; border-radius: 16px;
+      background: #fff; padding: 52px 24px;
+      text-align: center; cursor: pointer; transition: all 0.2s;
+    }
+    #drop-zone:hover, #drop-zone.drag-over { border-color: #FF9A9E; background: #fff8f8; }
+    #drop-zone .icon { font-size: 44px; margin-bottom: 14px; }
+    #drop-zone .text { font-size: 15px; color: #495057; margin-bottom: 6px; }
+    #drop-zone .hint { font-size: 12px; color: #adb5bd; }
+    #file-input { display: none; }
+
+    /* 미리보기 */
+    #preview-section { display: none; margin-top: 20px; text-align: center; }
+    #preview-img { max-width: 100%; max-height: 280px; border-radius: 14px; object-fit: contain; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .btn-row { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+    #analyze-btn {
+      background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+      color: #fff; border: none; border-radius: 12px;
+      padding: 13px 36px; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    #analyze-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    #reset-btn {
+      background: #f1f3f5; color: #495057; border: none;
+      border-radius: 12px; padding: 13px 22px; font-size: 14px; cursor: pointer;
+    }
+
+    /* 로딩 */
+    #loading { display: none; text-align: center; margin-top: 32px; color: #6c757d; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #f1f3f5; border-top-color: #FF9A9E;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 결과 */
+    #results { display: none; margin-top: 28px; }
+
+    .result-header {
+      font-size: 16px; font-weight: 700; color: #343a40;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* 분석 요약 카드 (이미지 + 핵심 수치) */
+    .summary-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .summary-inner {
+      display: flex; gap: 0;
+    }
+    .summary-image {
+      width: 140px; min-width: 140px;
+      background: #f8f9fa;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .summary-image img { width: 140px; height: 140px; object-fit: cover; }
+    .summary-stats { flex: 1; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* 각 항목 행 */
+    .stat-row { display: flex; flex-direction: column; gap: 5px; }
+    .stat-label { font-size: 11px; color: #868e96; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+    .stat-value-row { display: flex; align-items: center; justify-content: space-between; }
+    .stat-value { font-size: 17px; font-weight: 700; color: #212529; }
+    .stat-value.good { color: #2f9e44; }
+    .stat-value.warn { color: #e03131; }
+    .conf-bar-wrap { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .conf-bar-bg { flex: 1; height: 5px; background: #e9ecef; border-radius: 99px; overflow: hidden; }
+    .conf-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+    .conf-pct { font-size: 11px; font-weight: 600; min-width: 30px; text-align: right; }
+
+    /* 전문의 상담 배너 */
+    .medical-banner {
+      background: #fff5f5; border: 1px solid #ffc9c9;
+      border-radius: 12px; padding: 14px 18px;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .medical-banner span { font-size: 13px; font-weight: 600; color: #c92a2a; }
+
+    /* AI 근거 설명 카드 */
+    .evidence-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 18px 20px; margin-bottom: 14px;
+    }
+    .evidence-card .evidence-title {
+      font-size: 13px; font-weight: 700; color: #343a40;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .evidence-card .evidence-text { font-size: 13px; color: #495057; line-height: 1.65; margin-bottom: 10px; }
+    .evidence-card.muted .evidence-text { color: #868e96; margin-bottom: 0; }
+    .evidence-badge {
+      font-size: 10.5px; font-weight: 700; color: #868e96;
+      background: #f1f3f5; border-radius: 999px; padding: 2px 8px;
+    }
+    .evidence-source {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11.5px; font-weight: 600; color: #e8590c;
+      text-decoration: none;
+    }
+    .evidence-source:hover { text-decoration: underline; }
+
+    /* 추천사항 카드 */
+    .rec-card {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 18px 20px; margin-bottom: 14px;
+    }
+    .rec-card .rec-title { font-size: 13px; font-weight: 700; color: #343a40; margin-bottom: 12px; }
+    .rec-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+    .rec-dot { width: 6px; height: 6px; border-radius: 50%; background: #FF9A9E; margin-top: 6px; flex-shrink: 0; }
+    .rec-text { font-size: 13px; color: #495057; line-height: 1.6; }
+
+    /* 주의사항 */
+    .disclaimer {
+      background: #f8f9fa; border-radius: 12px;
+      padding: 14px 18px;
+    }
+    .disclaimer .dis-title { font-size: 12px; font-weight: 700; color: #495057; margin-bottom: 6px; }
+    .disclaimer p { font-size: 12px; color: #868e96; line-height: 1.7; }
+
+    /* 에러 */
+    #error-msg {
+      display: none; background: #fff5f5; border: 1px solid #ffc9c9;
+      border-radius: 12px; padding: 16px; margin-top: 20px;
+      color: #c92a2a; text-align: center; font-size: 14px;
+    }
+
+    @media (max-width: 480px) {
+      .summary-inner { flex-direction: column; }
+      .summary-image { width: 100%; }
+      .summary-image img { width: 100%; height: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🔬 AI 피부 분석</h1>
+    <p>이미지를 드래그하거나 클릭하여 피부 분석을 시작하세요</p>
+  </header>
+
+  <main>
+    <div id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div class="icon">📷</div>
+      <p class="text">이미지를 여기에 드래그하거나 클릭하여 선택</p>
+      <p class="hint">JPG · PNG · WEBP · 최대 10MB</p>
+      <input type="file" id="file-input" accept="image/*" />
+    </div>
+
+    <div id="preview-section">
+      <img id="preview-img" alt="선택된 이미지" />
+      <div class="btn-row">
+        <button id="analyze-btn" onclick="analyzeImage()">피부 분석하기</button>
+        <button id="reset-btn" onclick="reset()">다시 선택</button>
+      </div>
+    </div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>AI가 피부를 분석 중입니다 (최대 30초)</p>
+    </div>
+
+    <div id="error-msg"></div>
+
+    <div id="results">
+      <div class="result-header">📊 분석 결과</div>
+      <div id="result-body"></div>
+    </div>
+  </main>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    let selectedFile = null;
+    let previewSrc = null;
+
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('drag-over');
+      const f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith('image/')) showPreview(f);
+    });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) showPreview(e.target.files[0]); });
+
+    function showPreview(file) {
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewSrc = e.target.result;
+        document.getElementById('preview-img').src = previewSrc;
+        document.getElementById('preview-section').style.display = 'block';
+        dropZone.style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('error-msg').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function reset() {
+      selectedFile = null; previewSrc = null;
+      fileInput.value = '';
+      dropZone.style.display = 'block';
+      document.getElementById('preview-section').style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('error-msg').style.display = 'none';
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    async function analyzeImage() {
+      if (!selectedFile) return;
+      const btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('error-msg').style.display = 'none';
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      try {
+        const res = await fetch('/api/ai/analyze-skin', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
+        renderResults(await res.json());
+      } catch (err) {
+        const el = document.getElementById('error-msg');
+        el.textContent = '분석 중 오류가 발생했습니다: ' + err.message;
+        el.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    const typeMap = { oily:'지성', dry:'건성', combination:'복합성', sensitive:'민감성', normal:'정상', mixed:'복합성' };
+    const diseaseMap = { normal:'정상', healthy:'건강함', inflammatory:'염증성', warts:'사마귀', lesion:'병변', acne:'여드름', 'no disease detected':'질환 없음' };
+    const stateMap = { lesion:'병변', wrinkle:'주름', lip_dryness:'입술 건조', chin_sagging:'턱 처짐', normal:'정상', healthy:'건강함' };
+
+    function tr(map, val) { return val ? (map[val.toLowerCase()] || val) : '알 수 없음'; }
+
+    function confBar(value, color) {
+      const pct = Math.round(value * 100);
+      return `<div class="conf-bar-wrap">
+        <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <span class="conf-pct" style="color:${color}">${pct}%</span>
+      </div>`;
+    }
+
+    function barColor(c) {
+      if (c >= 0.8) return '#2f9e44';
+      if (c >= 0.6) return '#f59f00';
+      return '#e03131';
+    }
+
+    function renderResults(response) {
+      const data = response.data || response;
+      const conf = data.confidence || {};
+      const recs = data.recommendations || [];
+
+      const skinType    = tr(typeMap, data.skinType);
+      const skinDisease = tr(diseaseMap, data.skinDisease);
+      const skinState   = tr(stateMap, data.skinState);
+      const isHealthy   = ['정상','건강함','질환 없음'].includes(skinDisease);
+
+      let html = '';
+
+      // 요약 카드 (이미지 + 3개 항목)
+      html += `<div class="summary-card">
+        <div class="summary-inner">
+          <div class="summary-image"><img src="${previewSrc}" alt="분석 이미지" /></div>
+          <div class="summary-stats">
+            <div class="stat-row">
+              <div class="stat-label">피부 타입</div>
+              <div class="stat-value">${skinType}</div>
+              ${conf.skinType ? confBar(conf.skinType, barColor(conf.skinType)) : ''}
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">피부 질환</div>
+              <div class="stat-value ${isHealthy ? 'good' : 'warn'}">${skinDisease}</div>
+              ${conf.disease ? confBar(conf.disease, barColor(conf.disease)) : ''}
+            </div>
+            <div class="stat-row">
+              <div class="stat-label">피부 상태</div>
+              <div class="stat-value">${skinState}</div>
+              ${conf.state ? confBar(conf.state, barColor(conf.state)) : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+      // 전문의 상담 배너
+      if (data.needsMedicalAttention) {
+        html += `<div class="medical-banner">
+          <span style="font-size:18px">⚠️</span>
+          <span>피부과 전문의 상담을 권장합니다</span>
+        </div>`;
+      }
+
+      // AI 근거 설명 (RAG 기반)
+      const ge = data.groundedExplanation;
+      if (ge) {
+        if (ge.available) {
+          html += `<div class="evidence-card">
+            <div class="evidence-title">
+              🔎 AI 근거 설명
+              ${ge.similarity ? `<span class="evidence-badge">유사도 ${Math.round(ge.similarity * 100)}%</span>` : ''}
+            </div>
+            <p class="evidence-text">${ge.explanation}</p>
+            ${ge.source_url ? `<a class="evidence-source" href="${ge.source_url}" target="_blank" rel="noopener">출처 보기 ↗</a>` : ''}
+          </div>`;
+        } else {
+          html += `<div class="evidence-card muted">
+            <div class="evidence-title">🔎 AI 근거 설명</div>
+            <p class="evidence-text">${ge.message || '근거 정보가 없습니다.'}</p>
+          </div>`;
+        }
+      }
+
+      // 추천사항
+      if (recs.length > 0) {
+        html += `<div class="rec-card">
+          <div class="rec-title">AI 추천사항</div>
+          ${recs.map(r => `<div class="rec-item"><div class="rec-dot"></div><div class="rec-text">${r}</div></div>`).join('')}
+        </div>`;
+      }
+
+      // 주의사항
+      html += `<div class="disclaimer">
+        <div class="dis-title">⚠️ 주의사항</div>
+        <p>이 결과는 AI 분석을 통한 참고용 정보입니다. 정확한 진단을 위해서는 반드시 피부과 전문의와 상담하시기 바랍니다.</p>
+      </div>`;
+
+      document.getElementById('result-body').innerHTML = html;
+      document.getElementById('results').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

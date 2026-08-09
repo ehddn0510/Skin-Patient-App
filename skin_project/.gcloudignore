@@ -1,0 +1,13 @@
+.gcloudignore
+.git
+.gitignore
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.ipynb
+*.log
+config.env
+.env
+crawler/
+AI tool/

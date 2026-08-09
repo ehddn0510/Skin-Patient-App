@@ -4,6 +4,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from fastapi import FastAPI, Depends, HTTPException, status, Body, Request, File, UploadFile
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -47,7 +48,7 @@ from skin_analysis_crud import (
 )
 
 # 추천 시스템 import (임시 주석 처리)
-from product_description.crawler import crawl_olive_young_reviews
+# from product_description.crawler import crawl_olive_young_reviews  # 배포 환경 미사용
 # from recommendation import recommend_endpoint, RecommendQuery  # 존재하지 않는 import 제거
 
 # 환경변수 로드
@@ -67,12 +68,12 @@ try:
 except Exception as e:
     print(f"❌ 데이터베이스 연결 실패: {e}")
 
-# 환경변수에서 OpenAI API 키 로드
-openai_api_key = os.getenv("OPENAI_API_KEY")
-if openai_api_key and openai_api_key != "your-openai-api-key-here":
-    print(f"✅ OPENAI_API_KEY = {openai_api_key[:10]}...")
+# 환경변수에서 Groq API 키 로드
+groq_api_key = os.getenv("GROQ_API_KEY")
+if groq_api_key:
+    print(f"✅ GROQ_API_KEY = {groq_api_key[:10]}...")
 else:
-    print("⚠️ OPENAI_API_KEY가 설정되지 않았습니다")
+    print("⚠️ GROQ_API_KEY가 설정되지 않았습니다")
 
 # FastAPI 앱 생성
 app = FastAPI(
@@ -80,6 +81,23 @@ app = FastAPI(
     description="스킨케어 앱을 위한 백엔드 API",
     version="1.0.0"
 )
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def serve_ui():
+    template_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
+    with open(template_path, encoding="utf-8") as f:
+        return f.read()
+
+@app.api_route("/health", methods=["GET", "HEAD"], include_in_schema=False)
+def health_check():
+    db = SessionLocal()
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "ok"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+    finally:
+        db.close()
 
 # 요청 로깅 미들웨어 추가
 @app.middleware("http")
@@ -3769,9 +3787,11 @@ async def analyze_skin_image(image: UploadFile = File(...)):
                 "needsMedicalAttention": analysis_result["analysis_summary"]["needs_medical_attention"],
                 "confidence": {
                     "skinType": analysis_result["skin_type"].get("confidence", 0),
-                    "disease": analysis_result["skin_disease"].get("confidence", 0), 
+                    "disease": analysis_result["skin_disease"].get("confidence", 0),
                     "state": analysis_result["skin_state"].get("confidence", 0)
                 },
+                "uncertainty": analysis_result.get("uncertainty", {"is_uncertain": False}),
+                "groundedExplanation": analysis_result.get("grounded_explanation", {"available": False}),
                 "detailed_analysis": {
                     "skin_type": analysis_result["skin_type"],
                     "skin_disease": analysis_result["skin_disease"],

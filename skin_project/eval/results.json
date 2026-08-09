@@ -1,0 +1,726 @@
+{
+  "summary": {
+    "total_images": 35,
+    "contradiction_rate": 0.086,
+    "low_confidence_rate_by_model": {
+      "피부 타입": 0.886,
+      "피부 질환": 0.0,
+      "피부 상태": 0.114
+    },
+    "finding_cases": 35,
+    "explanation_availability_old_gate": 0.057,
+    "explanation_availability_new_gate": 0.8
+  },
+  "records": [
+    {
+      "file": "00940.png",
+      "skin_type": "지성",
+      "type_conf": 0.67,
+      "disease": "정상",
+      "disease_conf": 0.84,
+      "state": "lesion",
+      "state_conf": 0.752,
+      "flags": [
+        {
+          "type": "contradiction",
+          "detail": "질환 모델: 정상 판정 / 상태 모델: 'lesion' 75% 탐지 — 두 모델 결과 불일치"
+        }
+      ],
+      "is_contradiction": true,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "02972.png",
+      "skin_type": "지성",
+      "type_conf": 0.617,
+      "disease": "염증성",
+      "disease_conf": 0.93,
+      "state": "건성",
+      "state_conf": 0.695,
+      "flags": [],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": true,
+      "new_gate_available": true
+    },
+    {
+      "file": "04986.png",
+      "skin_type": "건성",
+      "type_conf": 0.421,
+      "disease": "염증성",
+      "disease_conf": 0.963,
+      "state": "lesion",
+      "state_conf": 0.778,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.421
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "06968.png",
+      "skin_type": "지성",
+      "type_conf": 0.451,
+      "disease": "염증성",
+      "disease_conf": 0.989,
+      "state": "lesion",
+      "state_conf": 0.741,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.451
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "10979.png",
+      "skin_type": "복합성",
+      "type_conf": 0.531,
+      "disease": "염증성",
+      "disease_conf": 0.623,
+      "state": "lesion",
+      "state_conf": 0.856,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.531
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "12951.png",
+      "skin_type": "지성",
+      "type_conf": 0.75,
+      "disease": "염증성",
+      "disease_conf": 0.963,
+      "state": "lesion",
+      "state_conf": 0.727,
+      "flags": [],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": true,
+      "new_gate_available": true
+    },
+    {
+      "file": "14994.png",
+      "skin_type": "지성",
+      "type_conf": 0.55,
+      "disease": "염증성",
+      "disease_conf": 0.953,
+      "state": "lesion",
+      "state_conf": 0.729,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.55
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "16972.png",
+      "skin_type": "건성",
+      "type_conf": 0.462,
+      "disease": "염증성",
+      "disease_conf": 0.905,
+      "state": "lesion",
+      "state_conf": 0.715,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.462
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "18997.png",
+      "skin_type": "지성",
+      "type_conf": 0.428,
+      "disease": "염증성",
+      "disease_conf": 0.902,
+      "state": "chin_sagging",
+      "state_conf": 0.667,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.428
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "20996.png",
+      "skin_type": "지성",
+      "type_conf": 0.39,
+      "disease": "염증성",
+      "disease_conf": 0.989,
+      "state": "lesion",
+      "state_conf": 0.781,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.39
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "22953.png",
+      "skin_type": "복합성",
+      "type_conf": 0.411,
+      "disease": "염증성",
+      "disease_conf": 0.976,
+      "state": "chin_sagging",
+      "state_conf": 0.839,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.411
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "24995.png",
+      "skin_type": "지성",
+      "type_conf": 0.492,
+      "disease": "염증성",
+      "disease_conf": 0.8,
+      "state": "lesion",
+      "state_conf": 0.825,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.492
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "25986.png",
+      "skin_type": "지성",
+      "type_conf": 0.554,
+      "disease": "염증성",
+      "disease_conf": 0.955,
+      "state": "건성",
+      "state_conf": 0.716,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.554
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "28952.png",
+      "skin_type": "지성",
+      "type_conf": 0.645,
+      "disease": "정상",
+      "disease_conf": 0.986,
+      "state": "건성",
+      "state_conf": 0.522,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 상태",
+          "value": 0.522
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "30987.png",
+      "skin_type": "지성",
+      "type_conf": 0.485,
+      "disease": "염증성",
+      "disease_conf": 0.968,
+      "state": "lesion",
+      "state_conf": 0.532,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.485
+        },
+        {
+          "type": "low_confidence",
+          "model": "피부 상태",
+          "value": 0.532
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "32993.png",
+      "skin_type": "지성",
+      "type_conf": 0.473,
+      "disease": "염증성",
+      "disease_conf": 0.976,
+      "state": "건성",
+      "state_conf": 0.807,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.473
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "34971.png",
+      "skin_type": "지성",
+      "type_conf": 0.447,
+      "disease": "염증성",
+      "disease_conf": 0.971,
+      "state": "건성",
+      "state_conf": 0.552,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.447
+        },
+        {
+          "type": "low_confidence",
+          "model": "피부 상태",
+          "value": 0.552
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "36983.png",
+      "skin_type": "건성",
+      "type_conf": 0.465,
+      "disease": "염증성",
+      "disease_conf": 0.731,
+      "state": "건성",
+      "state_conf": 0.668,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.465
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "38983.png",
+      "skin_type": "지성",
+      "type_conf": 0.517,
+      "disease": "염증성",
+      "disease_conf": 0.901,
+      "state": "chin_sagging",
+      "state_conf": 0.707,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.517
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "40971.png",
+      "skin_type": "복합성",
+      "type_conf": 0.528,
+      "disease": "정상",
+      "disease_conf": 0.542,
+      "state": "lesion",
+      "state_conf": 0.795,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.528
+        },
+        {
+          "type": "contradiction",
+          "detail": "질환 모델: 정상 판정 / 상태 모델: 'lesion' 80% 탐지 — 두 모델 결과 불일치"
+        }
+      ],
+      "is_contradiction": true,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "42953.png",
+      "skin_type": "지성",
+      "type_conf": 0.462,
+      "disease": "염증성",
+      "disease_conf": 0.987,
+      "state": "lesion",
+      "state_conf": 0.624,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.462
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "44966.png",
+      "skin_type": "복합성",
+      "type_conf": 0.449,
+      "disease": "염증성",
+      "disease_conf": 0.964,
+      "state": "lesion",
+      "state_conf": 0.814,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.449
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "46973.png",
+      "skin_type": "지성",
+      "type_conf": 0.546,
+      "disease": "염증성",
+      "disease_conf": 0.874,
+      "state": "lesion",
+      "state_conf": 0.724,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.546
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "48987.png",
+      "skin_type": "복합성",
+      "type_conf": 0.466,
+      "disease": "염증성",
+      "disease_conf": 0.987,
+      "state": "lesion",
+      "state_conf": 0.806,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.466
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "50983.png",
+      "skin_type": "지성",
+      "type_conf": 0.429,
+      "disease": "정상",
+      "disease_conf": 0.776,
+      "state": "chin_sagging",
+      "state_conf": 0.823,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.429
+        },
+        {
+          "type": "contradiction",
+          "detail": "질환 모델: 정상 판정 / 상태 모델: 'chin_sagging' 82% 탐지 — 두 모델 결과 불일치"
+        }
+      ],
+      "is_contradiction": true,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "52998.png",
+      "skin_type": "복합성",
+      "type_conf": 0.428,
+      "disease": "염증성",
+      "disease_conf": 0.987,
+      "state": "lesion",
+      "state_conf": 0.669,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.428
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "54986.png",
+      "skin_type": "복합성",
+      "type_conf": 0.512,
+      "disease": "염증성",
+      "disease_conf": 0.967,
+      "state": "lesion",
+      "state_conf": 0.712,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.512
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "56978.png",
+      "skin_type": "복합성",
+      "type_conf": 0.428,
+      "disease": "염증성",
+      "disease_conf": 0.924,
+      "state": "lesion",
+      "state_conf": 0.763,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.428
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "58988.png",
+      "skin_type": "지성",
+      "type_conf": 0.528,
+      "disease": "염증성",
+      "disease_conf": 0.955,
+      "state": "chin_sagging",
+      "state_conf": 0.711,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.528
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "60972.png",
+      "skin_type": "지성",
+      "type_conf": 0.369,
+      "disease": "염증성",
+      "disease_conf": 0.96,
+      "state": "lesion",
+      "state_conf": 0.759,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.369
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "62986.png",
+      "skin_type": "복합성",
+      "type_conf": 0.435,
+      "disease": "염증성",
+      "disease_conf": 0.935,
+      "state": "lesion",
+      "state_conf": 0.81,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.435
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "64965.png",
+      "skin_type": "건성",
+      "type_conf": 0.441,
+      "disease": "염증성",
+      "disease_conf": 0.93,
+      "state": "lesion",
+      "state_conf": 0.58,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.441
+        },
+        {
+          "type": "low_confidence",
+          "model": "피부 상태",
+          "value": 0.58
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": false
+    },
+    {
+      "file": "66963.png",
+      "skin_type": "지성",
+      "type_conf": 0.457,
+      "disease": "염증성",
+      "disease_conf": 0.973,
+      "state": "lesion",
+      "state_conf": 0.767,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.457
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "68980.png",
+      "skin_type": "지성",
+      "type_conf": 0.443,
+      "disease": "염증성",
+      "disease_conf": 0.98,
+      "state": "lesion",
+      "state_conf": 0.835,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.443
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    },
+    {
+      "file": "69985.png",
+      "skin_type": "건성",
+      "type_conf": 0.396,
+      "disease": "염증성",
+      "disease_conf": 0.946,
+      "state": "chin_sagging",
+      "state_conf": 0.741,
+      "flags": [
+        {
+          "type": "low_confidence",
+          "model": "피부 타입",
+          "value": 0.396
+        }
+      ],
+      "is_contradiction": false,
+      "has_finding": true,
+      "old_gate_available": false,
+      "new_gate_available": true
+    }
+  ]
+}
